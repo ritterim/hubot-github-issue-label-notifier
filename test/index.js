@@ -1,49 +1,137 @@
 'use strict';
 
-var Robot = require('hubot/src/robot');
-var TextMessage = require("hubot/src/message").TextMessage;
-var expect = require('chai').expect;
+process.env.EXPRESS_PORT = 13722;
 
-describe('hubot', function(){
+let Helper = require('hubot-test-helper');
+let helper = new Helper('../src/index.js');
 
-    var robot;
-    var user;
+let http = require('http');
+let expect = require('chai').expect;
 
-    beforeEach(()=> {
+let addLabelFixture = JSON.stringify(require('./fixtures/addLabel'));
+let issueOpenedFixture = JSON.stringify(require('./fixtures/issueOpened'));
+let addLabelTwoLabelsFixture = JSON.stringify(require('./fixtures/addLabelTwoLabels'));
 
-        // create new robot, without http, using the mock adapter
-        robot = new Robot(null, 'mock-adapter', false, 'Hubot');
+let token = 'the-token';
+let postOptions = {
+    hostname: 'localhost',
+    port: process.env.EXPRESS_PORT,
+    path: `/hubot/github-issue-label/general?token=${token}`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+};
 
-        // configure user
-        user = robot.brain.userForId('1', {
-            name: 'mocha',
-            room: '#mocha'
-        });
+describe('hubot', () => {
+    let room;
 
-        robot.adapter.on('connected', () => {
+    beforeEach(() => {
+        process.env.HUBOT_GITHUB_NOTIFIER_TOKEN = token;
+        process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = undefined;
 
-            // load the module under test and configure it for the
-            // robot.  This is in place of external-scripts
-            require('../src/index')(robot);
-
-        });
-
-        robot.run();
+        room = helper.createRoom();
     });
 
-    afterEach(()=> {
-        robot.shutdown();
+    afterEach(() => {
+        room.destroy();
     });
 
-    it('should send a message when hearing hello', (done) => {
+    it('should return 500 when HUBOT_GITHUB_NOTIFIER_TOKEN is not configured', (done) => {
+        delete process.env.HUBOT_GITHUB_NOTIFIER_TOKEN;
 
-        robot.adapter.on('send', (envelope, strings) => {
-            expect(strings[0]).to.match(/it\'s working/);
+        let req = http.request(postOptions, (res) => {
+            expect(res.statusCode).to.equal(500);
             done();
         });
 
-       // Send a message to Hubot
-        robot.adapter.receive(new TextMessage(user, 'hello'));
+        req.write(addLabelFixture);
+        req.end();
     });
 
+    it('should return 401 when HUBOT_GITHUB_NOTIFIER_TOKEN does not match environment variable', (done) => {
+        process.env.HUBOT_GITHUB_NOTIFIER_TOKEN = 'different-token';
+
+        let req = http.request(postOptions, (res) => {
+            expect(res.statusCode).to.equal(401);
+            done();
+        });
+
+        req.write(addLabelFixture);
+        req.end();
+    });
+
+    it('should return 200 when HUBOT_GITHUB_NOTIFIER_TOKEN matches environment variable', (done) => {
+        let req = http.request(postOptions, (res) => {
+            expect(res.statusCode).to.equal(200);
+            done();
+        });
+
+        req.write(addLabelFixture);
+        req.end();
+    });
+
+    it('should display expected message in requested channel for labeled request with 1 matching label', (done) => {
+        process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = 'bug';
+
+        let req = http.request(postOptions, (res) => {
+            expect(room.messages).to.eql([
+                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug. https://api.github.com/repos/baxterthehacker/public-repo/issues/2"]
+            ]);
+            done();
+        });
+
+        req.write(addLabelFixture);
+        req.end();
+    });
+
+    it('should display expected message in requested channel for labeled request with 2 labels with 1 match', (done) => {
+        process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = 'bug, test'
+
+        let req = http.request(postOptions, (res) => {
+            expect(room.messages).to.eql([
+                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug. https://api.github.com/repos/baxterthehacker/public-repo/issues/2"]
+            ]);
+            done();
+        });
+
+        req.write(addLabelFixture);
+        req.end();
+    });
+
+    it('should display expected message in requested channel for labeled request with 2 labels with 2 matches', (done) => {
+        process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = 'bug, test'
+
+        let req = http.request(postOptions, (res) => {
+            expect(room.messages).to.eql([
+                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug, test. https://api.github.com/repos/baxterthehacker/public-repo/issues/2"]
+            ]);
+            done();
+        });
+
+        req.write(addLabelTwoLabelsFixture);
+        req.end();
+    });
+
+    it('should not display any message in requested channel for labeled request with 0 matching labels', (done) => {
+        process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = 'non-matching';
+
+        let req = http.request(postOptions, (res) => {
+            expect(room.messages).to.eql([]);
+            done();
+        });
+
+        req.write(addLabelFixture);
+        req.end();
+    });
+
+    it('should not display any message for non-labeled request', (done) => {
+        let req = http.request(postOptions, (res) => {
+            expect(room.messages).to.eql([]);
+            done();
+        });
+
+        req.write(issueOpenedFixture);
+        req.end();
+    });
 });
