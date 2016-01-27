@@ -3,14 +3,13 @@
 // Dependencies:
 //   None
 // Configuration:
-//   HUBOT_GITHUB_NOTIFIER_TOKEN
 //   HUBOT_GITHUB_NOTIFIER_LABEL_FILTER (optional, comma seperated)
 // Commands:
 //   None
 // Notes:
 //   This script listens for webhooks configured on GitHub.
 //   Configure the GitHub webhooks to submit to:
-//   https://example.com/hubot/github-issue-label/room-name-here?token=HUBOT_GITHUB_NOTIFIER_TOKEN_VALUE_HERE
+//   https://example.com/hubot/github-issue-label/room-name-here
 // Author:
 //   ritterim
 
@@ -18,19 +17,7 @@
 
 module.exports = (robot) => {
     robot.router.post('/hubot/github-issue-label/:room', (req, res, next) => {
-        if (!process.env.HUBOT_GITHUB_NOTIFIER_TOKEN) {
-            robot.logger.error('HUBOT_GITHUB_NOTIFIER_TOKEN environment variable is not specified.');
-
-            res.status(500);
-            res.send('Configuration is required.');
-        }
-        else if (req.query.token !== process.env.HUBOT_GITHUB_NOTIFIER_TOKEN) {
-            robot.logger.warning(`Invalid token specified in ${req.url}.`);
-
-            res.status(401);
-            res.send('Unauthorized');
-        }
-        else if (req.body.action === 'labeled') {
+      if (req.body.action === 'labeled') {
             let labelFilter = process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER.split(',').map(x => x.trim());
 
             let issue = req.body.issue;

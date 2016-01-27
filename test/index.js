@@ -12,11 +12,10 @@ let addLabelFixture = JSON.stringify(require('./fixtures/addLabel'));
 let issueOpenedFixture = JSON.stringify(require('./fixtures/issueOpened'));
 let addLabelTwoLabelsFixture = JSON.stringify(require('./fixtures/addLabelTwoLabels'));
 
-let token = 'the-token';
 let postOptions = {
     hostname: 'localhost',
     port: process.env.EXPRESS_PORT,
-    path: `/hubot/github-issue-label/general?token=${token}`,
+    path: `/hubot/github-issue-label/general`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -27,7 +26,6 @@ describe('hubot', () => {
     let room;
 
     beforeEach(() => {
-        process.env.HUBOT_GITHUB_NOTIFIER_TOKEN = token;
         process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = undefined;
 
         room = helper.createRoom();
@@ -35,40 +33,6 @@ describe('hubot', () => {
 
     afterEach(() => {
         room.destroy();
-    });
-
-    it('should return 500 when HUBOT_GITHUB_NOTIFIER_TOKEN is not configured', (done) => {
-        delete process.env.HUBOT_GITHUB_NOTIFIER_TOKEN;
-
-        let req = http.request(postOptions, (res) => {
-            expect(res.statusCode).to.equal(500);
-            done();
-        });
-
-        req.write(addLabelFixture);
-        req.end();
-    });
-
-    it('should return 401 when HUBOT_GITHUB_NOTIFIER_TOKEN does not match environment variable', (done) => {
-        process.env.HUBOT_GITHUB_NOTIFIER_TOKEN = 'different-token';
-
-        let req = http.request(postOptions, (res) => {
-            expect(res.statusCode).to.equal(401);
-            done();
-        });
-
-        req.write(addLabelFixture);
-        req.end();
-    });
-
-    it('should return 200 when HUBOT_GITHUB_NOTIFIER_TOKEN matches environment variable', (done) => {
-        let req = http.request(postOptions, (res) => {
-            expect(res.statusCode).to.equal(200);
-            done();
-        });
-
-        req.write(addLabelFixture);
-        req.end();
     });
 
     it('should display expected message in requested channel for labeled request with 1 matching label', (done) => {
