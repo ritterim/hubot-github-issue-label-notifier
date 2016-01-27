@@ -3,6 +3,7 @@
 // Dependencies:
 //   None
 // Configuration:
+//   HUBOT_GITHUB_NOTIFIER_SECRET
 //   HUBOT_GITHUB_NOTIFIER_LABEL_FILTER (optional, comma seperated)
 // Commands:
 //   None
@@ -15,9 +16,24 @@
 
 'use strict';
 
+let crypto = require('crypto');
+let bufferEq = require('buffer-equal-constant-time');
+
 module.exports = (robot) => {
     robot.router.post('/hubot/github-issue-label/:room', (req, res, next) => {
-      if (req.body.action === 'labeled') {
+        if (!process.env.HUBOT_GITHUB_NOTIFIER_SECRET) {
+            robot.logger.error('HUBOT_GITHUB_NOTIFIER_SECRET environment variable is not specified.');
+
+            res.status(500);
+            res.send('Configuration is required.');
+        }
+        else if (!signatureValid(req)) {
+            robot.logger.warning(`Invalid secret specified in ${req.url}.`);
+
+            res.status(401);
+            res.send('Unauthorized');
+        }
+        else if (req.body.action === 'labeled') {
             let labelFilter = process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER.split(',').map(x => x.trim());
 
             let issue = req.body.issue;
@@ -35,4 +51,15 @@ module.exports = (robot) => {
             res.send('ok');
         }
     });
+
+    function signatureValid(req) {
+        // http://stackoverflow.com/a/7480211
+        let expected = crypto.createHmac('sha1', process.env.HUBOT_GITHUB_NOTIFIER_SECRET)
+          .update(JSON.stringify(req.body))
+          .digest('hex');
+
+        return bufferEq(
+          new Buffer(req.headers['x-hub-signature']),
+          new Buffer(expected));
+    };
 };

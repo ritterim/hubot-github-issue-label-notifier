@@ -18,6 +18,9 @@
     "prepublish": "webpack",
     "test": "node_modules/.bin/mocha --compilers js:babel-core/register,coffee:coffee-script/register"
   },
+  "dependencies": {
+    "buffer-equal-constant-time": "^1.0.1"
+  },
   "devDependencies": {
     "babel-core": "^6.2.1",
     "babel-loader": "^6.2.0",
