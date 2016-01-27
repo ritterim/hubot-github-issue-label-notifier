@@ -22,7 +22,7 @@ module.exports = (robot) => {
 
             let issue = req.body.issue;
             let labelNames = issue.labels.length > 0 ? issue.labels.map(x => x.name.trim()) : [];
-console.log(labelFilter);
+
             // If no label filter or there's any intersection between notifier labels and issue labels
             if (!labelFilter || labelFilter.some(x => labelNames.indexOf(x) !== -1)) {
                 let message = `GitHub issue '${issue.title}' includes these labels: ${issue.labels.map(x => x.name).sort().join(', ')}. ${issue.url}`;
