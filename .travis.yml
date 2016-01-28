@@ -1,6 +1,12 @@
 language: node_js
 node_js:
-  - v5
-  - v4
-  - '0.12'
-  - '0.10'
+- v5
+- v4
+deploy:
+  provider: npm
+  email: tech@ritterim.com
+  api_key:
+    secure: oFXg9aWDWftXVz7t7j3yvGPmdWfjuLDQfDSBNLfbgh2VDi73tmoWnbYSRckKnzf3CsL1RZq108hRacBgzq4OaHBciBPd9Bzfh6qozHe4rVcEx/f2vr0YTEyLOMxA5H33247RBzyEbVY+Kflj9KcKrP8PnpX9IyVFE4l5VPQLnmhpwFFkuQBK6wBJoKRSX612PJ8UtWzFd/bqdFSIDBv73aP0JkP74OiBbhPBuTt+rl9bk6fhjcLbhibw3CBJU7uAKFvZb1XoiRQYVb/L0/zOAC3Mdlu+Av4UoK4dLxlYX2wiYMy6enTalIEXSlSN945J/4+NJcujn6jJ+VCGB05WiN90XsuLMWpKO2joRgS72tlxY2EsLKkADwX5sKN5SQOvYVv91IDqms+O48RDVTeS76DlmlgWaIZiCtKJLACq4Uw6u6JSM7QBDnP4nhth7s6l2DJ9VvvZD0nfkf+tUeocpUX7iYmAei9HGv4/S2+vovW1EWHnOEr0DGcpfnT8+xXpbJaUEBv2+Zb+MOJbeF7a5UsOjGg1WEWJk+C/G2XWRerieptIixi8pEaU89FN04yjdIBzABhb9JKp68VVBdS5TNjzjupTV68njxSbi3glSdJsfahItTVC9ZhFCAyFIZ4feD43yEa4eSZepbUSgC8zdxP0ar5/aL/u8kXRoKqsWuU=
+  on:
+    tags: true
+    repo: ritterim/hubot-github-issue-label-notifier
