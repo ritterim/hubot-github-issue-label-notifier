@@ -84,6 +84,20 @@ describe('hubot', () => {
         req.end();
     });
 
+    it('should display expected message in requested channel for new issue with 1 matching label', (done) => {
+        process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = 'bug';
+
+        let req = http.request(issueOpenedFixturePostOptions, (res) => {
+            expect(room.messages).to.eql([
+                ['hubot', "New issue 'Spelling error in the README file' (bug) https://github.com/baxterthehacker/public-repo/issues/2"]
+            ]);
+            done();
+        });
+
+        req.write(issueOpenedFixture);
+        req.end();
+    });
+
     it('should display expected message in requested channel for labeled request with 1 matching label', (done) => {
         process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = 'bug';
 
