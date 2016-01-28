@@ -29,6 +29,11 @@
       "site_admin": false
     },
     "labels": [
+      {
+        "url": "https://api.github.com/repos/baxterthehacker/public-repo/labels/bug",
+        "name": "bug",
+        "color": "fc2929"
+      }
     ],
     "state": "open",
     "locked": false,
