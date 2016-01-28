@@ -11,6 +11,7 @@ let expect = require('chai').expect;
 
 const addLabelFixture = JSON.stringify(require('./fixtures/addLabel'));
 const issueOpenedFixture = JSON.stringify(require('./fixtures/issueOpened'));
+const issueOpenedNoLabelsFixture = JSON.stringify(require('./fixtures/issueOpenedNoLabels'));
 const addLabelTwoLabelsFixture = JSON.stringify(require('./fixtures/addLabelTwoLabels'));
 
 const secret = 'the-secret';
@@ -26,10 +27,12 @@ let addLabelFixturePostOptions = {
 };
 
 let issueOpenedFixturePostOptions = JSON.parse(JSON.stringify(addLabelFixturePostOptions));
+let issueOpenedNoLabelsFixturePostOptions = JSON.parse(JSON.stringify(addLabelFixturePostOptions));
 let addLabelTwoLabelsFixturePostOptions = JSON.parse(JSON.stringify(addLabelFixturePostOptions));
 
 addLabelFixturePostOptions.headers['X-Hub-Signature'] = getDigest(addLabelFixture);
 issueOpenedFixturePostOptions.headers['X-Hub-Signature'] = getDigest(issueOpenedFixture);
+issueOpenedNoLabelsFixturePostOptions.headers['X-Hub-Signature'] = getDigest(issueOpenedNoLabelsFixture);
 addLabelTwoLabelsFixturePostOptions.headers['X-Hub-Signature'] = getDigest(addLabelTwoLabelsFixture);
 
 function getDigest(fixture) {
@@ -41,7 +44,7 @@ describe('hubot', () => {
 
     beforeEach(() => {
         process.env.HUBOT_GITHUB_NOTIFIER_SECRET = secret;
-        process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER = undefined;
+        delete process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER;
 
         room = helper.createRoom();
     });
@@ -81,6 +84,18 @@ describe('hubot', () => {
         });
 
         req.write(addLabelFixture);
+        req.end();
+    });
+
+    it('should display expected message in requested channel for no label filter', (done) => {
+        let req = http.request(issueOpenedFixturePostOptions, (res) => {
+            expect(room.messages).to.eql([
+                ['hubot', "New issue 'Spelling error in the README file' (bug) https://github.com/baxterthehacker/public-repo/issues/2"]
+            ]);
+            done();
+        });
+
+        req.write(issueOpenedFixture);
         req.end();
     });
 
@@ -153,12 +168,12 @@ describe('hubot', () => {
     });
 
     it('should not display any message for non-labeled request', (done) => {
-        let req = http.request(issueOpenedFixturePostOptions, (res) => {
+        let req = http.request(issueOpenedNoLabelsFixturePostOptions, (res) => {
             expect(room.messages).to.eql([]);
             done();
         });
 
-        req.write(issueOpenedFixture);
+        req.write(issueOpenedNoLabelsFixture);
         req.end();
     });
 });

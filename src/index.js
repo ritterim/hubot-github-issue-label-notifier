@@ -34,13 +34,15 @@ module.exports = (robot) => {
             res.send('Unauthorized');
         }
         else if (req.body.action === 'opened' || req.body.action === 'labeled') {
-            let labelFilter = process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER.split(',').map(x => x.trim());
+            let labelFilter = process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER === undefined
+                ? undefined
+                : process.env.HUBOT_GITHUB_NOTIFIER_LABEL_FILTER.split(',').map(x => x.trim());
 
             let issue = req.body.issue;
             let labelNames = issue.labels.length > 0 ? issue.labels.map(x => x.name.trim()) : [];
 
             // If no label filter or there's any intersection between notifier labels and issue labels
-            if (!labelFilter || labelFilter.some(x => labelNames.indexOf(x) !== -1)) {
+            if (labelNames.length > 0 && (!labelFilter || (labelFilter.some(x => labelNames.indexOf(x) !== -1)))) {
                 let message = `${req.body.action === 'opened' ? 'New issue' : 'Label applied'} '${issue.title}' (${issue.labels.map(x => x.name).sort().join(', ')}) ${issue.html_url}`;
                 robot.send({ room: req.params.room }, message);
             }
