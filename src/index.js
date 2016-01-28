@@ -54,7 +54,7 @@ module.exports = (robot) => {
 
     function signatureValid(req) {
         // http://stackoverflow.com/a/7480211
-        let expected = crypto.createHmac('sha1', process.env.HUBOT_GITHUB_NOTIFIER_SECRET)
+        let expected = 'sha1=' + crypto.createHmac('sha1', process.env.HUBOT_GITHUB_NOTIFIER_SECRET)
           .update(JSON.stringify(req.body))
           .digest('hex');
 

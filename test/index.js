@@ -33,7 +33,7 @@ issueOpenedFixturePostOptions.headers['X-Hub-Signature'] = getDigest(issueOpened
 addLabelTwoLabelsFixturePostOptions.headers['X-Hub-Signature'] = getDigest(addLabelTwoLabelsFixture);
 
 function getDigest(fixture) {
-    return crypto.createHmac('sha1', secret).update(fixture).digest('hex');
+    return 'sha1=' + crypto.createHmac('sha1', secret).update(fixture).digest('hex');
 }
 
 describe('hubot', () => {
