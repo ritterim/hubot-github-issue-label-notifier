@@ -41,7 +41,7 @@ module.exports = (robot) => {
 
             // If no label filter or there's any intersection between notifier labels and issue labels
             if (!labelFilter || labelFilter.some(x => labelNames.indexOf(x) !== -1)) {
-                let message = `GitHub issue '${issue.title}' includes these labels: ${issue.labels.map(x => x.name).sort().join(', ')}. ${issue.url}`;
+                let message = `GitHub issue '${issue.title}' includes these labels: ${issue.labels.map(x => x.name).sort().join(', ')}. ${issue.html_url}`;
                 robot.send({ room: req.params.room }, message);
             }
 

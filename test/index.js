@@ -89,7 +89,7 @@ describe('hubot', () => {
 
         let req = http.request(addLabelFixturePostOptions, (res) => {
             expect(room.messages).to.eql([
-                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug. https://api.github.com/repos/baxterthehacker/public-repo/issues/2"]
+                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug. https://github.com/baxterthehacker/public-repo/issues/2"]
             ]);
             done();
         });
@@ -103,7 +103,7 @@ describe('hubot', () => {
 
         let req = http.request(addLabelFixturePostOptions, (res) => {
             expect(room.messages).to.eql([
-                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug. https://api.github.com/repos/baxterthehacker/public-repo/issues/2"]
+                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug. https://github.com/baxterthehacker/public-repo/issues/2"]
             ]);
             done();
         });
@@ -117,7 +117,7 @@ describe('hubot', () => {
 
         let req = http.request(addLabelTwoLabelsFixturePostOptions, (res) => {
             expect(room.messages).to.eql([
-                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug, test. https://api.github.com/repos/baxterthehacker/public-repo/issues/2"]
+                ['hubot', "GitHub issue 'Spelling error in the README file' includes these labels: bug, test. https://github.com/baxterthehacker/public-repo/issues/2"]
             ]);
             done();
         });
