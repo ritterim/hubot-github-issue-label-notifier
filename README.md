@@ -10,6 +10,17 @@ A Hubot plugin for alerts in your chat for GitHub issue labels.
 - Set the `HUBOT_GITHUB_NOTIFIER_SECRET` environment variable to a secret key. Choose something secure!
 - Optionally: Set a `HUBOT_GITHUB_NOTIFIER_LABEL_FILTER` environment variable with a filter for issues. Without a filter, all labels are used. Multiple values are comma separated.
 
+## GitHub webhook setup
+
+You'll want to setup a GitHub webhook to point to this script. Here's the basics:
+
+- Payload URL: http://example.com/hubot/github-issue-label/specific-chat-room *(update `example.com` and `specific-chat-room` for your environment)*.
+- Choose `application/json` as the **Content type**.
+- You'll need to specify the same **secret** as your `HUBOT_GITHUB_NOTIFIER_SECRET` environment variable.
+- Make sure it's not set to **push** events only -- **everything** or **Issues** are sufficient.
+
+GitHub enables you to replay **Recent Deliveries** using a web browser, which can be handy if you're debugging.
+
 ## Contributing
 
 Have an idea? Let's talk about it in an issue!
